@@ -138,11 +138,12 @@ var ListingController = function($scope, $location, ListingFactory) {
 		$scope.search();
 	}
 
-	$scope.remove = function() {	
+	$scope.remove = function() {
+		var index = $scope.listings.indexOf(this.listing);
+
 		ListingFactory.delete({ id: this.listing._id }, 
-			function() {
-			var item_index = $scope.listings.indexOf(this.listing);
-			$scope.listings.splice(item_index, 1);
+			function() {	
+			$scope.listings.splice(index, 1);
 		}, function(err) {
 			$scope.error = JSON.stringify(err);
 		});

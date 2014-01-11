@@ -7,7 +7,7 @@ module.exports = {
 		port: '3306'
 	},
 	mongodb: {
-		host: 'mongodb://localhost/angular_listings'
+		host: 'mongodb://localhost/angular_todo'
 	}
 
 }
