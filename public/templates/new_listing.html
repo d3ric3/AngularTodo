@@ -1,0 +1,26 @@
+<section data-ng-controller='NewListingController'>
+	
+	<form name='newForm' class='form-horizontal col-lg-6' role='form'>
+		<div class="form-group alert alert-danger ww" ng-show='error != null'>{{ error }}</div>
+		<div class="form-group alert alert-success ww" ng-show='success != null'>{{ success }}</div>
+		<div class='form-group'>
+			<label class='contorl-label' for='text'>Description</label>
+			<textarea class='form-control' ng-model='text' rows='5' type='text' name='text' placeholder='Description' required />
+		</div>
+		<div class='form-group'>
+			<label class='control-label' for='category'>Category</label>
+			<select class='form-control' ng-model='category' name='category' required>
+				<option ng-repeat='category in categories' value='{{ category }}'>{{ category }}</option>
+			</select>
+		</div>
+		<div class='form-group'>
+			<label class='control-label' for='price'>Price</label>
+			<input class='form-control' ng-model='price' type='number' name='price' placeholder='Price' required />
+		</div>
+		<div class='form-group'>
+			<input class='btn btn-primary pull-right' ng-disabled="!newForm.$valid" ng-click='create(newForm)' type='submit' value='create' />
+			<span class='pull-right'>&nbsp;</span>
+			<a href="/#/"><button class='btn btn-primary pull-right'>Back</button></a>
+		</div>
+	</form>
+</section>

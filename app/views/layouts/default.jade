@@ -1,11 +1,15 @@
 doctype html
-html
+html(ng-app='ListingApp')
   head
     title= title
     link(rel='stylesheet', href='/vendor/dist/css/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src='/vendor/angular.min.js')
   body
     block content
 
-    script(src='/vendor/bootstrap.min.js')
+    script(src='/vendor/jquery-1.10.2.min.js')
+    script(src='/vendor/angular/angular.js')
+    script(src='/vendor/angular/angular-resource.js')
+    script(src='/vendor/angular/angular-route.js')
+    script(src='/javascripts/app.js')
+    script(src='/vendor/dist/js/bootstrap.min.js')
