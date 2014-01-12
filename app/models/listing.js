@@ -7,6 +7,7 @@ var ListingSchema = new Schema({
 	text: { type: String, required: true },
 	category: { type: String, required: true },
 	price: { type: Number, required: true },
+	status: { type: String, required: true, default: 'active' },
 	created_at: { type: Date, default: Date.now },
 	updated_at: { type: Date, default: Date.now }
 });
