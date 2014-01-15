@@ -9,11 +9,12 @@ module.exports = function(app) {
 
 		var sort_field = q.sort_field !== 'undefined' ? q.sort_field : 'priority';
 		var is_desc = q.is_desc === 'true' ? true : false;
+		var status = q.status !== 'archived' ? 'active' : 'archived';
 
 		sort_field = is_desc ? '-' + sort_field : sort_field;
 
 		global.db.listing.
-		find({}).
+		find({ status: status }).
 		sort(sort_field).
 		exec(function(err, listings) {
 			if(err) res.status(500).json(err);

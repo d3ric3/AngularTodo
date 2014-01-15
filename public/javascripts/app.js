@@ -102,6 +102,7 @@ ListingApp.config(function($routeProvider) {
 	$routeProvider.
 		when('/',  { controller: 'ListingController', templateUrl: '/templates/listing.html' }).
 		when('/new', { controller: 'NewListingController', templateUrl: '/templates/new_listing.html' }).
+		when('/archive', { controller: 'ArchiveListingController', templateUrl: '/templates/archive.html' }).
 		otherwise({ redirectTo: '/' });
 });
 
@@ -122,7 +123,8 @@ var ListingController = function($scope, $location, ListingFactory) {
 	$scope.search = function() {
 		ListingFactory.query({
 			sort_field: $scope.sort_field,
-			is_desc: $scope.is_desc	
+			is_desc: $scope.is_desc,
+			status: 'active'
 		}, function(data) {
 			$scope.listings = data;
 		});
@@ -138,11 +140,13 @@ var ListingController = function($scope, $location, ListingFactory) {
 		$scope.search();
 	}
 
-	$scope.remove = function() {
+	$scope.archive = function() {
 		var index = $scope.listings.indexOf(this.listing);
 
-		ListingFactory.delete({ id: this.listing._id }, 
-			function() {	
+		ListingFactory.update({
+			id: this.listing._id,
+			status: 'archived'
+		}, function() {
 			$scope.listings.splice(index, 1);
 		}, function(err) {
 			$scope.error = JSON.stringify(err);
@@ -211,4 +215,80 @@ var NewListingController = function($scope, $location, ListingFactory) {
 		}
 
 		$scope.init();
+}
+
+var ArchiveListingController = function($scope, $location, ListingFactory) {
+
+	$scope.sort_field = 'updated_at';
+	$scope.is_desc = false;
+	$scope.listings = [];
+
+	$scope.init = function() {
+		$scope.search();
+	}
+
+	$scope.search = function() {
+		ListingFactory.query({
+			sort_field: $scope.sort_field,
+			is_desc: $scope.is_desc,
+			status: 'archived'
+		}, function(data) {
+			$scope.listings = data;
+		});
+	}
+
+	$scope.sort = function(field) {
+		if($scope.sort_field === field) {
+			$scope.is_desc = !$scope.is_desc;
+		} else {
+			$scope.sort_field = field;
+			$scope.is_desc = false;
+		}
+		$scope.search();
+	}
+
+	$scope.select_all = function() {
+		$scope.listings.forEach(function(item) {
+			if(!$scope.check_all) item.selected = true;
+			else item.selected = false;
+		});
+	}
+
+	$scope.remove = function(){
+		var index = this.listings.indexOf(this.listing);
+
+		ListingFactory.delete({ id: this.listing._id }, 
+			function() {	
+			$scope.listings.splice(index, 1);
+		}, function(err) {
+			$scope.error = JSON.stringify(err);
+		});
+	}
+
+	$scope.is_green = function(date) {
+		date = new Date(date);
+		var lapsed = (new Date()).getTime() - date.getTime();
+		var one_day = 24 * 60 * 60 * 1000;
+		if (lapsed <= one_day) return true;
+		else return false;
+	}
+
+	$scope.is_yellow = function(date) {
+		date = new Date(date);
+		var lapsed = (new Date()).getTime() - date.getTime();
+		var one_day = 24 * 60 * 60 * 1000;
+		var one_week = 7 * 24 * 60 * 60 * 1000;
+		if (lapsed > one_day && lapsed <= one_week) return true;
+		else return false;
+	}
+
+	$scope.is_red = function(date) {
+		date = new Date(date);
+		var lapsed = (new Date()).getTime() - date.getTime();
+		var one_week = 7 * 24 * 60 * 60 * 1000;
+		if (lapsed > one_week) return true;
+		else return false;
+	}
+
+	$scope.init();
 }
