@@ -154,7 +154,7 @@ var ListingController = function($scope, $location, ListingFactory) {
 	}
 
 	$scope.update = function() {
-		ListingFactory.update({ id: this.listing._id, updated_at: new Date(2000, 1, 1) },
+		ListingFactory.update({ id: this.listing._id, posted_at: new Date() },
 			function(data) {
 				$scope.search();
 			}, function(err) {
