@@ -165,7 +165,7 @@ var ListingController = function($scope, $location, ListingFactory) {
 	$scope.is_green = function(date) {
 		date = new Date(date);
 		var lapsed = (new Date()).getTime() - date.getTime();
-		var one_day = 24 * 60 * 60 * 1000;
+		var one_day = 6 * 60 * 60 * 1000;
 		if (lapsed <= one_day) return true;
 		else return false;
 	}
@@ -173,9 +173,9 @@ var ListingController = function($scope, $location, ListingFactory) {
 	$scope.is_yellow = function(date) {
 		date = new Date(date);
 		var lapsed = (new Date()).getTime() - date.getTime();
-		var one_day = 24 * 60 * 60 * 1000;
+		var six_hours = 6 * 60 * 60 * 1000;
 		var one_week = 7 * 24 * 60 * 60 * 1000;
-		if (lapsed > one_day && lapsed <= one_week) return true;
+		if (lapsed > six_hours && lapsed <= one_week) return true;
 		else return false;
 	}
 
