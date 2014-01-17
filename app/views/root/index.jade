@@ -1,6 +1,8 @@
 extends ../layouts/default
 
 block content
-	h1= title
-	div(data-ng-view)
+	h1 Post Tracking App
+	div(ng-controller='PresentationController')
+		img(src='images/ajax-loader.gif', ng-show='loading')
+		div(data-ng-view ng-show='!loading')
 		

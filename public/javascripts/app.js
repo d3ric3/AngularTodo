@@ -1,116 +1,28 @@
-// var TrackingApp = angular.module('TrackingApp', ['ngRoute', 'ngResource']);
-
-// TrackingApp.config(function($routeProvider) {
-// 	$routeProvider.
-// 		when('/', { controller: 'ListController', templateUrl: '/templates/todo.html' }).
-// 		otherwise({ redirectTo: '/' });
-// });
-
-// TrackingApp.factory('TrackingFactory', function($resource) {
-// 	return $resource('/api/:id/todo', { id: '@id' }, { update: { method: 'PUT' } });
-// });	
-
-// var ListController = function($scope, $location, TrackingFactory) {
-
-// 	$scope.init = function() {
-// 		TrackingFactory.query({ 
-// 			search_string: $scope.query,
-// 			sort_field: $scope.sort_field, 
-// 			is_desc: $scope.is_desc,
-// 			limit: $scope.limit,
-// 			offset: $scope.offset
-// 		}, function(data) {
-// 			$scope.more = data.length === $scope.limit;
-// 			$scope.todos = $scope.todos.concat(data);
-// 			$scope.rows = $scope.todos.length; $scope.todos;
-// 		});
-// 	}
-
-// 	$scope.search_for_more = function() {
-// 		TrackingFactory.query({ 
-// 			search_string: $scope.query,
-// 			sort_field: $scope.sort_field, 
-// 			is_desc: $scope.is_desc,
-// 			limit: $scope.limit,
-// 			offset: $scope.offset
-// 		}, function(data) {
-// 			$scope.more = data.length === $scope.limit;
-
-// 			if(!$scope.more) $scope.offset -= $scope.limit; // undo offset when $scope.more === false
-				
-// 			$scope.todos = $scope.todos.concat(data);
-// 			$scope.rows = $scope.todos.length;
-// 		});
-// 	}
-
-// 	$scope.search_for_sort = function(rows) {
-// 		TrackingFactory.query({ 
-// 			search_string: $scope.query,
-// 			sort_field: $scope.sort_field, 
-// 			is_desc: $scope.is_desc,
-// 			limit: rows
-// 		}, function(data) {
-// 			$scope.todos = data;
-// 			$scope.rows = $scope.todos.length;
-// 		});
-// 	}
-
-// 	$scope.sort = function(col) {
-// 		if($scope.sort_field === col) {
-// 			$scope.is_desc = !$scope.is_desc;
-// 		} else {
-// 			$scope.sort_field = col;
-// 			$scope.is_desc = false;
-// 		}
-// 		$scope.search_for_sort($scope.rows);
-// 	}
-
-// 	$scope.show_more = function() {
-// 		$scope.offset += $scope.initial_limit; // increase offset
-// 		$scope.search_for_more(true);
-// 	}
-
-// 	$scope.has_more = function() {
-// 		return $scope.more;
-// 	}
-
-// 	$scope.reset = function() {
-// 		//$scope.search(false);
-// 	}
-
-// 	// default order settings
-// 	$scope.sort_field = 'priority';
-// 	$scope.is_desc = false;
-// 	$scope.limit = 1;
-// 	$scope.offset = 0;
-// 	$scope.limit;
-// 	$scope.rows = 0;
-// 	$scope.initial_limit = $scope.limit;
-
-// 	$scope.todos = [];
-// 	$scope.more = true;
-
-// 	// default/initial load
-// 	$scope.init();
-// }
-
-
 // ********* Listing App Section *********
 var ListingApp = angular.module('ListingApp', ['ngRoute', 'ngResource']);
 
-ListingApp.config(function($routeProvider) {
+ListingApp.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
-		when('/',  { controller: 'ListingController', templateUrl: '/templates/listing.html' }).
+		when('/listings',  { controller: 'ListingController', templateUrl: '/templates/listings.html' }).
 		when('/new', { controller: 'NewListingController', templateUrl: '/templates/new_listing.html' }).
-		when('/archive', { controller: 'ArchiveListingController', templateUrl: '/templates/archive.html' }).
-		otherwise({ redirectTo: '/' });
-});
+		when('/archives', { controller: 'ArchiveListingController', templateUrl: '/templates/archives.html' }).
+		otherwise({ redirectTo: '/listings' });
+}]);
 
-ListingApp.factory('ListingFactory', function($resource) {
+ListingApp.factory('ListingFactory', ['$resource', function($resource) {
 	return $resource('/api/:id/listing', { id: '@id'}, { update: { method: 'PUT' } });
-});
+}]);
 
-var ListingController = function($scope, $location, ListingFactory) {
+ListingApp.controller('PresentationController', ['$scope', function($scope) {
+	$scope.$on('SHOW_LOADING', function() {
+		$scope.loading = true;
+	});
+	$scope.$on('STOP_LOADING', function() {
+		$scope.loading = false;
+	});
+}]);
+
+ListingApp.controller('ListingController', ['$scope', '$location', 'ListingFactory', function($scope, $location, ListingFactory) {
 
 	$scope.sort_field = 'updated_at';
 	$scope.is_desc = false;
@@ -121,12 +33,18 @@ var ListingController = function($scope, $location, ListingFactory) {
 	}
 
 	$scope.search = function() {
+		$scope.$emit('SHOW_LOADING');
+
 		ListingFactory.query({
 			sort_field: $scope.sort_field,
 			is_desc: $scope.is_desc,
 			status: 'active'
 		}, function(data) {
-			$scope.listings = data;
+			$scope.$emit('STOP_LOADING');
+			$scope.listings = data;			
+		}, function(err) {
+			$scope.$emit('STOP_LOADING');
+			$scope.error = JSON.stringify(err);
 		});
 	}
 
@@ -188,9 +106,9 @@ var ListingController = function($scope, $location, ListingFactory) {
 	}
 
 	$scope.init();
-}
+}]);
 
-var NewListingController = function($scope, $location, ListingFactory) {
+ListingApp.controller('NewListingController', ['$scope', '$location', 'ListingFactory', function($scope, $location, ListingFactory) {
 
 		$scope.init = function() {
 			$scope.categories = ['sale', 'rent'];
@@ -215,9 +133,9 @@ var NewListingController = function($scope, $location, ListingFactory) {
 		}
 
 		$scope.init();
-}
+}]);
 
-var ArchiveListingController = function($scope, $location, ListingFactory) {
+ListingApp.controller('ArchiveListingController', ['$scope', '$location', 'ListingFactory', function($scope, $location, ListingFactory) {
 
 	$scope.sort_field = 'updated_at';
 	$scope.is_desc = false;
@@ -291,4 +209,4 @@ var ArchiveListingController = function($scope, $location, ListingFactory) {
 	}
 
 	$scope.init();
-}
+}]);
