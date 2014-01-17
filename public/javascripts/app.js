@@ -146,12 +146,18 @@ ListingApp.controller('ArchiveListingController', ['$scope', '$location', 'Listi
 	}
 
 	$scope.search = function() {
+		$scope.$emit('SHOW_LOADING');
+
 		ListingFactory.query({
 			sort_field: $scope.sort_field,
 			is_desc: $scope.is_desc,
 			status: 'archived'
 		}, function(data) {
+			$scope.$emit('STOP_LOADING');
 			$scope.listings = data;
+		}, function(err) {
+			$scope.$emit('STOP_LOADING');
+			$scope.error = JSON.stringify(err);
 		});
 	}
 
@@ -177,6 +183,19 @@ ListingApp.controller('ArchiveListingController', ['$scope', '$location', 'Listi
 
 		ListingFactory.delete({ id: this.listing._id }, 
 			function() {	
+			$scope.listings.splice(index, 1);
+		}, function(err) {
+			$scope.error = JSON.stringify(err);
+		});
+	}
+
+	$scope.restore = function() {
+		var index = $scope.listings.indexOf(this.listing);
+
+		ListingFactory.update({
+			id: this.listing._id,
+			status: 'active'
+		}, function() {
 			$scope.listings.splice(index, 1);
 		}, function(err) {
 			$scope.error = JSON.stringify(err);
