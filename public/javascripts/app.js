@@ -29,11 +29,15 @@ ListingApp.controller('ListingController', ['$scope', '$location', 'ListingFacto
 	$scope.listings = [];
 
 	$scope.init = function() {
-		$scope.search();
+		$scope.search(true);
 	}
 
-	$scope.search = function() {
-		$scope.$emit('SHOW_LOADING');
+	$scope.search = function(is_loading) {
+		// default is_loading to false
+		is_loading = typeof is_loading !== 'undefined' ? is_loading : false;
+console.log(is_loading);
+		if(is_loading)
+			$scope.$emit('SHOW_LOADING');
 
 		ListingFactory.query({
 			sort_field: $scope.sort_field,
