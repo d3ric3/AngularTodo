@@ -1,6 +1,14 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+@media (max-width: 767px) {
+  body {
+    padding: 2px;
+    font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+  }
+}
+@media (min-width: 768px) {
+  body {
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  }
 }
 a {
   color: #00B7FF;
