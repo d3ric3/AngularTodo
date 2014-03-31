@@ -6,9 +6,13 @@
 var express = require('express');
 var http = require('http');
 var path = require('path');
-var passport = require('passport');
+var expressJwt = require('express-jwt');
+global.jwt_secret = 'qwe1r3f';
 
 var app = express();
+
+// We are going to protect /api routes with JWT
+app.use('/api', expressJwt({ secret: global.jwt_secret }));
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -20,8 +24,6 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(app.router);
 app.use(require('less-middleware')({ src: path.join(__dirname, 'public') }));
 app.use(express.static(path.join(__dirname, 'public')));

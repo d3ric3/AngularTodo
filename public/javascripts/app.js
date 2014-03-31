@@ -6,11 +6,34 @@ ListingApp.config(['$routeProvider', function($routeProvider) {
 		when('/listings',  { controller: 'ListingController', templateUrl: '/templates/listings.html' }).
 		when('/new', { controller: 'NewListingController', templateUrl: '/templates/new_listing.html' }).
 		when('/archives', { controller: 'ArchiveListingController', templateUrl: '/templates/archives.html' }).
-		otherwise({ redirectTo: '/listings' });
+		when('/login', { controller: 'LoginController', templateUrl: '/templates/login.html' }).
+		otherwise({ redirectTo: '/login' });
 }]);
+
+ListingApp.config(function ($httpProvider) {
+  $httpProvider.interceptors.push('AuthInterceptor');
+});
 
 ListingApp.factory('ListingFactory', ['$resource', function($resource) {
 	return $resource('/api/:id/listing', { id: '@id'}, { update: { method: 'PUT' } });
+}]);
+
+ListingApp.factory('AuthInterceptor', ['$rootScope', '$q', '$window', function ($rootScope, $q, $window) {
+  return {
+    request: function (config) {
+      config.headers = config.headers || {};
+      if ($window.sessionStorage.token) {
+        config.headers.Authorization = 'Bearer ' + $window.sessionStorage.token;
+      }
+      return config;
+    },
+    responseError: function (rejection) {
+      if (rejection.status === 401) {
+        // handle the case where the user is not authenticated
+      }
+      return $q.reject(rejection);
+    }
+  };
 }]);
 
 ListingApp.controller('PresentationController', ['$scope', function($scope) {
@@ -35,7 +58,7 @@ ListingApp.controller('ListingController', ['$scope', '$location', 'ListingFacto
 	$scope.search = function(is_loading) {
 		// default is_loading to false
 		is_loading = typeof is_loading !== 'undefined' ? is_loading : false;
-console.log(is_loading);
+
 		if(is_loading)
 			$scope.$emit('SHOW_LOADING');
 
@@ -232,4 +255,21 @@ ListingApp.controller('ArchiveListingController', ['$scope', '$location', 'Listi
 	}
 
 	$scope.init();
+}]);
+
+ListingApp.controller('LoginController', ['$scope', '$http', '$window', function($scope, $http, $window) {
+
+	$scope.login = function () {
+		$http
+		.post('/login', { email: $scope.email, password: $scope.password })
+		.success(function (data, status, headers, config) {
+    		$window.sessionStorage.token = data.token;
+    		$window.location = '/#/listings';
+		})
+		.error(function (data, status, headers, config) {
+			delete $window.sessionStorage.token;
+			$scope.error = JSON.stringify(data);
+		});
+	}
+
 }]);
