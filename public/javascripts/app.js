@@ -1,5 +1,5 @@
 // ********* Listing App Section *********
-var ListingApp = angular.module('ListingApp', ['ngRoute', 'ngResource']);
+var ListingApp = angular.module('ListingApp', ['ngRoute', 'ngResource', 'ngCookies']);
 
 ListingApp.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
@@ -18,12 +18,12 @@ ListingApp.factory('ListingFactory', ['$resource', function($resource) {
 	return $resource('/api/:id/listing', { id: '@id'}, { update: { method: 'PUT' } });
 }]);
 
-ListingApp.factory('AuthInterceptor', ['$rootScope', '$q', '$window', function ($rootScope, $q, $window) {
+ListingApp.factory('AuthInterceptor', ['$rootScope', '$q', '$cookieStore', function ($rootScope, $q, $cookieStore) {
   return {
     request: function (config) {
       config.headers = config.headers || {};
-      if ($window.sessionStorage.token) {
-        config.headers.Authorization = 'Bearer ' + $window.sessionStorage.token;
+      if ($cookieStore.get('token') !== '') {
+        config.headers.Authorization = 'Bearer ' + $cookieStore.get('token');
       }
       return config;
     },
@@ -257,17 +257,19 @@ ListingApp.controller('ArchiveListingController', ['$scope', '$location', 'Listi
 	$scope.init();
 }]);
 
-ListingApp.controller('LoginController', ['$scope', '$http', '$window', function($scope, $http, $window) {
+ListingApp.controller('LoginController', ['$scope', '$http', '$window', '$cookieStore', function($scope, $http, $window, $cookieStore) {
 
 	$scope.login = function () {
 		$http
 		.post('/login', { email: $scope.email, password: $scope.password })
 		.success(function (data, status, headers, config) {
-    		$window.sessionStorage.token = data.token;
+    		//$window.sessionStorage.token = data.token;
+    		$cookieStore.put('token', data.token);
     		$window.location = '/#/listings';
 		})
 		.error(function (data, status, headers, config) {
-			delete $window.sessionStorage.token;
+			//delete $window.sessionStorage.token;
+			$cookieStore.remove('token');
 			$scope.error = JSON.stringify(data);
 		});
 	}

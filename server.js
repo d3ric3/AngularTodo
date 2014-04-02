@@ -33,9 +33,12 @@ app.use(function(err, req, res, next) {
   // Treat as 404
   if (~err.message.indexOf('not found')) return next();
   // Log it
-  console.error(err.stack);
+  console.error(err.stack); console.log(err);
   // Error page
-  res.status(500).render('root/500', { error: err.stack });
+  if(err.stack)
+  	res.status(500).render('root/500', { error: err.stack });
+
+  res.status(500).json(err);
 });
 
 // Assume 404 since no middleware responded
