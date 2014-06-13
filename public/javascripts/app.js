@@ -99,9 +99,10 @@ ListingApp.controller('ListingController', ['$scope', '$location', 'ListingFacto
 	}
 
 	$scope.update = function() {
+		var current_index = _.indexOf($scope.listings, this.listing);
 		ListingFactory.update({ id: this.listing._id, posted_at: new Date() },
 			function(data) {
-				$scope.search();
+				$scope.listings[current_index] = data;
 			}, function(err) {
 				$scope.error = JSON.stringify(err);
 			});
